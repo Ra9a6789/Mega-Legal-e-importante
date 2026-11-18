@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>High School Amabilio</title>
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:#1b1030;font-family:system-ui,sans-serif;color:#fff;overflow:hidden}
+#app{position:relative;max-width:900px;height:100dvh;margin:auto;overflow:hidden}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column}
+.hidden{display:none!important}
+button{font:inherit;color:#fff;background:#ff4f9a;border:0;border-radius:14px;padding:12px 22px;font-weight:700;cursor:pointer;box-shadow:0 4px #0005;transition:.15s}
+button:active{transform:translateY(3px)}button:disabled{opacity:.4}
+#menu,#ov,#end{align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px}
+#menu{background:linear-gradient(160deg,#ff7eb6,#7a5cff 60%,#2ec4b6)}
+#menu h1,#end h1{font-size:clamp(28px,8vw,52px);text-shadow:3px 3px #0004;animation:bob 2s infinite}
+#menu button{min-width:230px}
+#ov{z-index:20;background:#000d}
+#vn{--bg:linear-gradient(#8fd3ff,#ffe6a7);background:var(--bg)}
+#vn[data-th=myst]{--bg:linear-gradient(#2b1055,#0d0221)}
+#vn[data-th=boss]{--bg:linear-gradient(#5b0a1e,#12020a)}
+#vn.flsh::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .8s forwards;pointer-events:none;z-index:9}
+#top{display:flex;gap:8px;align-items:center;padding:8px;font-size:12px;z-index:3;text-shadow:0 1px 3px #000}
+#top button{padding:4px 10px}
+#pb{flex:1;height:8px;background:#0006;border-radius:9px;overflow:hidden}
+#pf{height:100%;width:0;background:#ffd23f;transition:.6s}
+#sp{flex:1;display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:0 6px;min-height:0}
+.sp,.fi{position:relative;overflow:hidden;border:3px solid #fff9;border-radius:16px;background:var(--c)}
+.sp{height:min(100%,44vh);aspect-ratio:3/4;min-width:0;max-width:30%;filter:brightness(.55);transform:scale(.9);transition:.35s}
+.sp img,.fi img{width:100%;height:100%;object-fit:cover;display:block}
+.sp span,.fi span{display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:48px;font-weight:900}
+.fb span{display:flex!important}
+.sp.on{filter:none;transform:scale(1);box-shadow:0 0 25px var(--c)}
+.sp.in{animation:in .5s}.sp.out{animation:out .3s forwards}.sp.boss{animation:bossin 1s}
+.sp.x-happy{animation:bounce .6s 2}.sp.x-mad{animation:shake .4s 3;box-shadow:0 0 30px red}
+.sp.x-shock{animation:pop .4s}.sp.x-sad{filter:grayscale(.8) brightness(.8);transform:translateY(12px)}
+#bx{margin:8px;padding:18px 14px 14px;min-height:130px;background:#120a2cdd;border:3px solid #fff;border-radius:18px;position:relative;font-size:clamp(15px,4vw,19px);line-height:1.4;cursor:pointer;z-index:3}
+#nm{position:absolute;top:-16px;left:14px;padding:3px 14px;border-radius:12px;font-weight:800;color:#fff}
+#ch{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:20px;background:#000a;z-index:6}
+.cb{background:#fff;color:#3a1c71;animation:pop .3s}
+#ct{position:absolute;top:46px;left:50%;translate:-50% 0;background:#ffd23f;color:#3a1c71;padding:8px 16px;border-radius:20px;font-weight:800;z-index:7;animation:clue 2.4s forwards}
+#fd{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:.3s;z-index:8}#fd.on{opacity:1}
+#bt{background:radial-gradient(circle at 50% 30%,#8b2252,#1a0626);padding:10px;gap:8px;justify-content:space-between}
+.ar{position:relative;display:flex;align-items:center;gap:10px}.ar.r{flex-direction:row-reverse}
+.fi{width:min(26vw,130px);aspect-ratio:3/4;flex:none}
+.bars{flex:1}.bar{height:14px;background:#0007;border-radius:9px;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%;transition:width .5s}
+#tn{text-align:center;font-weight:800;color:#ffd23f}
+#ms{min-height:64px;background:#120a2cdd;border:3px solid #fff;border-radius:14px;padding:10px;display:flex;align-items:center;font-size:15px}
+#ak{display:grid;grid-template-columns:1fr 1fr;gap:8px}#ak button{font-size:14px;padding:12px 6px}
+#bres{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(40px,13vw,90px);font-weight:900;z-index:8;background:#000a}
+#bres.win{color:#ffd23f;animation:zoom 1s infinite}#bres.lose{color:#aaa;animation:shake .5s infinite}
+.fl{position:absolute;left:45%;top:30%;font-size:30px;font-weight:900;color:#ff3b3b;text-shadow:0 0 6px #000;animation:float 1s forwards;z-index:5}.fl.g{color:#5dff7a}
+.pt{position:absolute;left:40%;top:30%;font-size:24px;pointer-events:none;animation:fall .9s forwards}
+.fi.atk{animation:atk .4s}.fi.hit{animation:hit .5s}
+#end{background:linear-gradient(#ff9ad5,#7a5cff);overflow:hidden}
+#end.e2{background:linear-gradient(#6c7a89,#2c3e50)}#end.e3{background:linear-gradient(#ffd166,#ef476f)}
+#end.e4{background:linear-gradient(#4a0d1c,#12020a)}#end.e5{background:linear-gradient(#5a3825,#ffb347)}
+#fx span{position:absolute;font-size:28px;pointer-events:none}
+#end>*:not(#fx){position:relative;z-index:2}#ed{max-width:520px;line-height:1.5}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@keyframes in{from{opacity:0;transform:translateX(-40px) scale(.8)}}
+@keyframes out{to{opacity:0;transform:translateX(40px) scale(.8)}}
+@keyframes bounce{50%{transform:translateY(-18px)}}
+@keyframes shake{25%{translate:-6px 0}75%{translate:6px 0}}
+@keyframes pop{50%{transform:scale(1.12)}}
+@keyframes bossin{from{opacity:0;transform:scale(2) rotate(-8deg);filter:brightness(4)}}
+@keyframes flash{from{opacity:.9}to{opacity:0}}
+@keyframes clue{0%{opacity:0;top:20px}15%,85%{opacity:1;top:46px}100%{opacity:0}}
+@keyframes atk{50%{transform:translateY(-30px) scale(1.15)}}
+@keyframes hit{25%{translate:-10px 0;filter:brightness(3)}50%{translate:10px 0}75%{translate:-6px 0;filter:hue-rotate(60deg)}}
+@keyframes float{to{transform:translateY(-70px);opacity:0}}
+@keyframes fall{to{opacity:0;transform:translate(var(--dx),70px) rotate(360deg)}}
+@keyframes fall2{from{transform:translateY(-100vh)}to{transform:translateY(100vh)}}
+@keyframes rise{from{transform:translateY(100vh)}to{transform:translateY(-100vh)}}
+@keyframes spin{to{transform:rotate(360deg) scale(1.5)}}
+@keyframes zoom{50%{transform:scale(1.8)}}
+button:hover{filter:brightness(1.12)}
+#menu{background-size:300% 300%;animation:bgm 9s ease infinite}
+#vn::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle,#fff5 0 5px,transparent 6px) 0 0/90px 90px,radial-gradient(circle,#fff4 0 9px,transparent 10px) 45px 45px/140px 140px;animation:drift 14s linear infinite}
+#sp{position:relative;z-index:1}
+.sp.on:not([class*=x-]):not(.in):not(.boss):not(.out){animation:breathe 3s ease-in-out infinite}
+#tx.n{animation:up .25s}
+#bx::after{content:"▼";position:absolute;right:12px;bottom:6px;font-size:12px;opacity:0;animation:bob .8s infinite}
+#bx.rdy::after{opacity:1}
+.cb{animation:up .4s both;transition:.15s}.cb:hover{transform:scale(1.03)}
+#bt{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+#bt .fi{width:min(24vw,15dvh,120px)}
+#tn{animation:glow 1.2s ease-in-out infinite}
+#ak.lk{opacity:.5;pointer-events:none}
+#ak button small{display:block;font-weight:400;font-size:11px;opacity:.9}
+.ar.turn .fi{box-shadow:0 0 24px 6px #ffd23f}
+.fi.atk2{animation:atk2 .4s}.fi.intro{animation:bossin 1s}.fi.heal{animation:heal .6s}
+#bt.shk{animation:shake .4s}
+.fl.big{font-size:38px;color:#ffd23f}
+@keyframes bgm{50%{background-position:100% 50%}}
+@keyframes drift{to{background-position:90px 90px,185px 185px}}
+@keyframes breathe{50%{transform:scale(1.03)}}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+@keyframes glow{50%{text-shadow:0 0 12px #ffd23f}}
+@keyframes atk2{50%{transform:translateY(30px) scale(1.15)}}
+@keyframes heal{50%{filter:brightness(1.6) saturate(1.5)}}
+#it{text-align:center;font-size:13px;font-weight:700;color:#ffb3c7;min-height:18px}
+#ak button:last-child{grid-column:span 2}
+#fin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:9;background:#000d;font-size:clamp(20px,6vw,34px);font-weight:900;color:#ffd23f;text-shadow:0 0 18px #ff4f9a;animation:up .8s both}
+#fin.red{color:#ff4040;text-shadow:0 0 18px #f00;animation:shake .3s infinite}
+#au.on{background:#2ec4b6}
+</style></head><body>
+<div id="app">
+<div id="menu" class="scr"><h1>HIGH SCHOOL<br>AMABILIO</h1><h2>O Mistério dos Bolos de Pote 🧁</h2>
+<button id="bn">Novo Jogo</button><button id="bc">Continuar</button><button id="bs">Configurações</button></div>
+<div id="vn" class="scr hidden"><div id="top"><span id="al"></span><div id="pb"><div id="pf"></div></div><button id="au">Auto</button><button id="pz">⏸</button></div>
+<div id="sp"></div><div id="ct" class="hidden"></div><div id="ch" class="hidden"></div>
+<div id="bx"><b id="nm"></b><div id="tx"></div></div><div id="fd"></div></div>
+<div id="bt" class="scr hidden">
+<div class="ar r" id="ba"><div class="fi" id="aci"></div><div class="bars"><b>Diretora Acine</b><div class="bar"><i id="ahb" style="background:#e63946"></i></div><small id="aht"></small></div></div>
+<div id="tn"></div><div id="it"></div><button id="pz2" style="position:absolute;top:8px;right:8px;padding:4px 10px;z-index:5" onclick="$('ov').classList.remove('hidden')">⏸</button><div id="ms"></div>
+<div class="ar" id="bm"><div class="fi" id="mui"></div><div class="bars"><b>Manu</b><div class="bar"><i id="mhb" style="background:#3ddc84"></i></div><div class="bar"><i id="mpb" style="background:#4cc9f0"></i></div><small id="mht"></small></div></div>
+<div id="ak"></div><div id="bres" class="hidden"></div><div id="fin" class="hidden"></div></div>
+<div id="end" class="scr hidden"><div id="fx"></div><h1 id="et"></h1><p id="ed"></p><small id="es"></small>
+<button id="br">Jogar novamente</button><button id="m2">Menu principal</button></div>
+<div id="ov" class="scr hidden"><h2>Pausa / Configurações</h2>
+<label>Volume <input id="vr" type="range" min="0" max="1" step=".05" value=".6"></label>
+<button id="at">Áudio: ligado</button><button id="rs">Voltar ao jogo</button><button id="mm">Menu principal</button></div>
+</div>
+<script>
+const $=i=>document.getElementById(i),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),sl=ms=>new Promise(r=>setTimeout(r,ms));
+const C={manu:{n:'Manu',c:'#ff4f9a',i:'M'},duda:{n:'Duda',c:'#ffa62b',i:'D'},maryana:{n:'Maryana',c:'#2ec4b6',i:'Y'},alice:{n:'Alice',c:'#8a6bff',i:'A'},acine:{n:'Diretora Acine',c:'#d62839',i:'Δ'},N:{n:'',c:'#000',i:''}};
+const ALL=['manu','duda','maryana','alice'],ACT=['','Ato 1 — O Desaparecimento','Ato 2 — A Investigação','Ato 3 — A Suspeita','Ato 4 — A Revelação','Ato 5 — O Confronto Final'];
+let S=null,B=null,lk=0,typing=null,full='',wait=0,choosing=0,vol=.6,mute=0,on=0,curM=null;
+const scr=id=>['menu','vn','bt','end'].forEach(k=>$(k).classList.toggle('hidden',k!=id));
+const sv=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},ld=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+/* ===== ÁUDIO ===== */
+const A={};['fundo1','fundo2','Escolha'].forEach(n=>{const a=new Audio('assets/'+n+'.mp3');a.preload='auto';a.onerror=()=>{a.bad=1};A[n]=a});
+A.fundo1.loop=A.fundo2.loop=true;
+function setM(n){curM=n;if(!on)return;['fundo1','fundo2'].forEach(k=>{const a=A[k];if(a.bad)return;if(k==n){if(a.paused){a.volume=0;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{})}a._t=mute?0:vol}else a._t=0})}
+setInterval(()=>['fundo1','fundo2'].forEach(k=>{const a=A[k],t=a._t||0,d=t-a.volume;if(Math.abs(d)>.03)a.volume=Math.min(1,Math.max(0,a.volume+Math.sign(d)*.04));else{a.volume=t;if(!t&&!a.paused)a.pause()}}),60);
+function sfx(){const a=A.Escolha;if(!on||mute||a.bad)return;a.volume=vol;a.currentTime=0;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{});clearTimeout(a._k);a._k=setTimeout(()=>a.pause(),2000)}
+['pointerup','click','keydown','touchend'].forEach(ev=>document.addEventListener(ev,()=>{on=1;setM(curM)}));
+/* ===== IMAGENS COM FALLBACK ===== */
+function fi(e,fs,k){const im=new Image();let n=0;im.alt='';im.onerror=()=>{if(++n<fs.length)im.src='assets/'+fs[n]+'.jpg';else{im.remove();e.classList.add('fb')}};im.src='assets/'+fs[0]+'.jpg';e.prepend(im);e.style.setProperty('--c',C[k].c);const s=document.createElement('span');s.textContent=C[k].i;e.append(s)}
+fi($('mui'),['manu_luta','manu'],'manu');fi($('aci'),['acine_luta','acine'],'acine');
+/* ===== HISTÓRIA ===== */
+const L=[{id:'d',t:'Investigar a sala da diretora',g:'ld'},{id:'a',t:'Interrogar os alunos',g:'la'},{id:'u',t:'Pedir ajuda para a Duda',g:'lu'},{id:'c',t:'Procurar pistas na cantina',g:'lc'}];
+const SC={
+a1:{a:1,p:5,s:[
+{w:'N',t:'Colégio Amabilio, 10h15. O recreio mais calmo da história... até a Manu abrir a mochila.',s:[],m:1,th:'day'},
+{w:'manu',t:'Cadê... CADÊ OS MEUS BOLOS DE POTE?!',s:['manu'],x:'shock'},
+{w:'manu',t:'Eram doze! De Ninho com morango! Eu até etiquetei!',x:'sad'},
+{w:'duda',t:'Calma, Manu! Talvez você tenha comido e esquecido.',s:['manu','duda'],x:'happy'},
+{w:'manu',t:'EU NUNCA ESQUECERIA UM BOLO DE POTE, DUDA.',x:'mad'},
+{w:'maryana',t:'Foi roubo. Tem migalha de cobertura aqui... e ela segue pro corredor.',s:['manu','duda','maryana']},
+{w:'alice',t:'Eu avisei! Ouvi um carrinho rolando de madrugada. Ninguém acredita em mim!',s:ALL,x:'shock'},
+{w:'manu',t:'Gente, meus bolos desapareceram! Isso não vai ficar assim! Quem vem comigo?',x:'mad'},
+{g:'hub'}]},
+hub:{a:2,p:20,s:[{g:'a3',q:s=>s.v.length>=3},
+{w:'N',t:'Hora de agir, detetives! Por onde começar?',s:ALL,m:1,th:'day'},
+{ch:s=>L.filter(o=>!s.v.includes(o.id)).map(o=>({t:o.t,g:o.g,f:s=>s.v.push(o.id)}))}]},
+ld:{a:2,p:20,s:[
+{w:'N',t:'Sala da diretora Acine. Porta entreaberta, cheiro de baunilha e de autoridade.',s:['manu','alice'],th:'myst',m:2},
+{w:'alice',t:'Eu distraio quem vier. Vai, Manu!',x:'happy'},
+{w:'manu',t:'Uma agenda! "Quinta: Reunião do Clube Secreto dos Bolos." CLUBE SECRETO?!',s:['manu'],x:'shock',c:'agenda do clube secreto'},
+{ch:s=>[{t:'Sair de fininho',g:'hub'},{t:'Abrir a gaveta trancada',g:'ld2'}]}]},
+ld2:{a:2,p:22,s:[
+{w:'acine',t:'(ao longe) Quem está na minha sala?!',x:'mad'},
+{ch:s=>[{t:'Esconder debaixo da mesa',f:s=>{s.h=1;clue('bilhete do Depósito 7')}},{t:'Gritar: "É inspeção de bolo!"',f:s=>{s.h=2;s.br++}}]},
+{w:'N',q:s=>s.h==1,t:'Debaixo da mesa, Manu lê um bilhete: "Guardar tudo no Depósito 7". Acine vai embora sem ver nada.'},
+{w:'acine',q:s=>s.h==2,t:'...Inspeção de bolo? Esse colégio está cada vez mais estranho.'},
+{w:'manu',q:s=>s.h==2,t:'Funcionou?! Eu mesma estou chocada.',x:'shock'},
+{g:'hub'}]},
+lc:{a:2,p:20,s:[
+{w:'N',t:'Cantina. Cheiro de coxinha e de segredo.',s:['manu','maryana'],th:'day',m:1},
+{w:'maryana',t:'A cantineira disse que a diretora encomendou DOZE potes de granulado colorido. Doze, Manu.',x:'shock',c:'granulado encomendado'},
+{w:'manu',t:'Doze de granulado... e doze bolos sumidos. Maryana, você é um gênio!',x:'happy'},
+{ch:s=>[{t:'Agradecer com um abraço apertado',f:s=>{s.tr++}},{t:'Exigir o recibo da encomenda',f:s=>{s.br++;clue('recibo da cantina')}}]},
+{g:'hub'}]},
+la:{a:2,p:20,s:[
+{w:'N',t:'Pátio. Um aluno do 6º ano treme perto do bebedouro.',s:['manu','alice'],th:'day',m:1},
+{w:'alice',t:'Ele viu algo. Eu sinto. Já assisti três dramas de mistério.',x:'happy'},
+{ch:s=>[{t:'Perguntar com gentileza',f:s=>{s.h=1;s.tr++}},{t:'Interrogar estilo filme policial',f:s=>{s.h=2;s.br++;s.tr--}}]},
+{w:'N',q:s=>s.h==1,t:'Ele sorri e conta: "Vi uma sombra de coque empurrando um carrinho coberto!"'},
+{w:'N',q:s=>s.h==2,t:'O aluno chora, mas confessa: "Vi uma sombra de coque empurrando um carrinho!" Alice entrega um lencinho.'},
+{w:'manu',t:'Coque... carrinho... Isso está ficando óbvio demais.',x:'shock',c:'testemunha do carrinho'},
+{g:'hub'}]},
+lu:{a:2,p:20,s:[
+{w:'N',t:'Biblioteca. Duda lê um livro de cabeça para baixo (de propósito).',s:['manu','duda'],th:'day',m:1},
+{w:'duda',t:'Tive uma ideia: e se os bolos fugiram sozinhos, atrás de liberdade?',x:'happy'},
+{w:'manu',t:'Duda...',x:'sad'},
+{w:'duda',t:'Mas olha! Pegadas de salto alto na cera do chão. Rumo ao Depósito 7!',x:'shock',c:'pegadas de salto alto'},
+{ch:s=>[{t:'Abraçar a teoria dos bolos fugitivos',f:s=>{s.tr++}},{t:'Dizer que bolo não tem perna',f:s=>{s.br++;s.tr--}}]},
+{g:'hub'}]},
+a3:{a:3,p:55,s:[
+{w:'N',t:'As pistas apontam para o mesmo lugar: o Depósito 7... e a sala da diretora.',s:ALL,th:'myst',m:2},
+{w:'alice',t:'Gente... e se for a Acine? Ela vive dizendo que "doce atrapalha o foco"!',x:'shock'},
+{w:'maryana',t:'Sem prova, a detenção é nossa. A chave do Depósito 7 está na biblioteca.'},
+{ch:s=>[{t:'Pedir para a Alice buscar a chave',f:s=>{s.tr++;clue('chave do Depósito 7')}},{t:'Ir sozinha buscar a chave',f:s=>{s.br++;s.tr--;clue('chave do Depósito 7')}}]},
+{w:'N',t:'Com a chave na mão, o grupo vira o corredor... e dá de cara com ELA.',s:['manu','acine']},
+{w:'acine',t:'Procurando algo, meninas? Detetives não constam no regulamento.',x:'mad'},
+{ch:s=>[{t:'Encarar a diretora',f:s=>{s.br++}},{t:'Disfarçar: "É ensaio de teatro!"',f:s=>{s.tr++}}]},
+{w:'acine',t:'Hmpf. Voltem para a aula. Eu estou de olho. Sempre estou.'},
+{g:'a4'}]},
+a4:{a:4,p:75,s:[
+{w:'N',t:'Depósito 7. A chave gira, a porta range. Doze bolos de pote brilham sobre uma mesa... e uma cadeira de diretora gigante gira devagar.',s:ALL,th:'boss',m:2},
+{w:'acine',t:'Parabéns, Manu. Fui EU quem levou os bolos.',s:['manu','acine'],x:'happy'},
+{w:'manu',t:'POR QUÊ?!',x:'shock'},
+{w:'acine',t:'A escola precisa de ordem. E eu precisava de sobremesa. Agora os bolos são patrimônio da diretoria!',x:'mad'},
+{w:'N',t:'No livro-caixa da mesa: "12 bolos recebidos — 0 devolvidos".',c:'livro-caixa da diretoria'},
+{w:'manu',t:'Acine, devolve meus bolos. Última chance.',x:'mad'},
+{ch:s=>[{t:'Enfrentar a diretora!',g:'a5'},{t:'Propor um acordo',g:'deal'},{t:'Comer todos os bolos como "prova"',g:'glut'}]}]},
+a5:{a:5,p:90,s:[
+{w:'acine',t:'Então que vença a melhor sobremesa!',s:['manu','acine'],x:'mad',m:2,th:'boss'},
+{w:'manu',t:'Eu tenho amigas, argumentos e granulado. Vem!',x:'happy'},{bt:1}]},
+w1:{a:5,p:95,s:[
+{w:'acine',t:'Impossível... derrotada por uma aluna e doze potinhos de glacê...',s:['manu','acine'],x:'sad',m:1,th:'day'},
+{w:'manu',t:'Bolos de volta! E agora você vai me ouvir, Acine.',x:'mad'},
+{g:'e1',q:s=>s.cl.length>=6&&s.tr>=3},{g:'e2'}]},
+e1:{a:5,p:100,s:[
+{w:'manu',t:'Com provas, amigas e coragem, os doze potes voltaram para casa!',s:ALL,x:'happy'},
+{w:'acine',t:'Eu aceito a punição... e instituo o Dia do Bolo de Pote.',s:['manu','acine'],x:'sad'},
+{w:'alice',t:'Isso daria um final perfeito de dorama!',s:ALL,x:'happy'},{end:'e1'}]},
+e2:{a:5,p:100,s:[
+{w:'manu',t:'Peguei os bolos... mas sem provas e sem apoio, ninguém acreditou em mim.',s:['manu','maryana'],x:'sad'},
+{w:'maryana',t:'A gente ajudaria, se você tivesse ouvido a gente.',x:'sad'},{end:'e2'}]},
+deal:{a:5,p:95,s:[
+{w:'manu',t:'Que tal dividir? Eu faço os bolos, você assina os alvarás.',s:['manu','acine'],th:'day',m:1},
+{w:'acine',t:'Proposta aceita. Confeitaria Amabilio: o futuro!',x:'happy'},{end:'e3'}]},
+l1:{a:5,p:95,s:[
+{w:'acine',t:'Detenção para você! Doze, uma por bolo!',s:['manu','acine'],x:'happy'},
+{w:'manu',t:'Eu volto... com mais granulado.',x:'sad'},{end:'e4'}]},
+glut:{a:5,p:95,s:[
+{w:'manu',t:'Se são prova, eu guardo... dentro de mim!',s:['manu','acine'],th:'day',m:1,x:'happy'},
+{w:'acine',t:'NÃÃÃO! EU NÃO ENCOMENDEI DOZE DE NOVO!',x:'shock'},
+{w:'N',t:'Manu brilha, flutua e vira a lenda do açúcar.'},{end:'e5'}]}};
+const ENDS={
+e1:{t:'O Pote da Amizade (Final Verdadeiro)',d:'Com provas e amigas ao lado, Manu venceu a diretora e os doze bolos voltaram. A escola criou o Dia do Bolo de Pote!',g:'🎉',a:'fall2 4s linear infinite',m:'fundo1'},
+e2:{t:'Vitória Meio Salgada',d:'Manu recuperou os bolos, mas sem provas e sem a confiança das amigas, a vitória foi solitária. Os potes voltaram... amassados.',g:'🥲',a:'rise 5s linear infinite',m:'fundo1'},
+e3:{t:'Sócias de Bolo',d:'Manu e Acine abriram a Confeitaria Amabilio. Ninguém entendeu nada, mas vendeu muito.',g:'🧁',a:'spin 3s linear infinite',m:'fundo1'},
+e4:{t:'Detenção Doce',d:'Derrotada, Manu ganhou doze detenções e uma fatia de bolo de consolação. A revanche vem aí.',g:'📝',a:'shake .4s infinite',m:'fundo2'},
+e5:{t:'Overdose de Brigadeiro',d:'Manu comeu a prova. Todas. Virou lenda escolar, flutuou até o teto e ninguém lembrou do crime.',g:'🍫',a:'zoom 2s ease-in-out infinite',m:'fundo1'}};
+/* ===== MOTOR ===== */
+function newG(){S={sc:'a1',i:0,cl:[],tr:0,br:0,v:[]};$('sp').innerHTML='';choosing=0;$('ch').classList.add('hidden');scr('vn');step()}
+function cont(){let d=null;try{d=JSON.parse(ld('amab'))}catch(e){}if(!d)return newG();S=d;$('sp').innerHTML='';choosing=0;$('ch').classList.add('hidden');scr('vn');view(null);step()}
+function menu(){scr('menu');$('bc').disabled=!ld('amab');setM('fundo1')}
+let tt;function toast(t){const e=$('ct');e.textContent=t;e.classList.remove('hidden');e.style.animation='none';void e.offsetWidth;e.style.animation='';clearTimeout(tt);tt=setTimeout(()=>e.classList.add('hidden'),2400)}
+function clue(c){if(S.cl.includes(c))return;S.cl.push(c);toast('🔎 Pista: '+c)}
+function sprites(l,w,x){const b=$('sp');[...b.children].forEach(e=>{if(!l.includes(e.dataset.k)&&!e.classList.contains('out')){e.classList.add('out');setTimeout(()=>e.remove(),320)}});
+l.forEach(k=>{let e=b.querySelector('[data-k="'+k+'"]:not(.out)');if(!e){e=document.createElement('div');e.className='sp in'+(k=='acine'?' boss':'');e.dataset.k=k;fi(e,[k],k);b.append(e);setTimeout(()=>e.classList.remove('in','boss'),1000);if(k=='acine'){const v=$('vn');v.classList.remove('flsh');void v.offsetWidth;v.classList.add('flsh')}}
+e.classList.toggle('on',k==w||w=='N');['happy','mad','shock','sad'].forEach(z=>e.classList.remove('x-'+z));if(k==w&&x){void e.offsetWidth;e.classList.add('x-'+x)}})}
+function view(st){$('vn').dataset.th=S.th||'day';setM(S.m?'fundo'+S.m:null);sprites(S.sp||[],st?st.w:null,st?st.x:null);const sc=SC[S.sc];if(sc){$('al').textContent=ACT[sc.a];$('pf').style.width=Math.min(100,sc.p+(sc.a==2?S.v.length*6:0))+'%'}}
+function say(w,t){const n=$('nm');n.textContent=C[w].n;n.style.background=C[w].c;n.style.display=w=='N'?'none':'block';const el=$('tx');el.textContent='';el.classList.remove('n');void el.offsetWidth;el.classList.add('n');$('bx').classList.remove('rdy');full=t;let i=0;clearInterval(typing);typing=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(typing);typing=null;$('bx').classList.add('rdy');autoGo()}},18)}
+function go(id){wait=1;$('fd').classList.add('on');setTimeout(()=>{const pa=SC[S.sc]&&SC[S.sc].a;S.sc=id;S.i=0;if(SC[id].a!==pa)toast('✨ '+ACT[SC[id].a]);$('fd').classList.remove('on');wait=0;step()},350)}
+function step(){
+if(wait||!S)return;const sc=SC[S.sc],st=sc&&sc.s[S.i];if(!st){menu();return}
+if(st.q&&!st.q(S)){S.i++;return step()}
+if(st.g)return go(st.g);if(st.bt)return btStart();if(st.end)return finish(st.end);
+if(st.ch){choosing=1;const box=$('ch');box.innerHTML='';box.classList.remove('hidden');
+st.ch(S).forEach((o,i)=>{const b=document.createElement('button');b.className='cb';b.style.animationDelay=i*90+'ms';b.textContent=o.t;b.onclick=()=>{sfx();box.classList.add('hidden');choosing=0;o.f&&o.f(S);if(o.g)go(o.g);else{S.i++;step()}};box.append(b)});return}
+if(st.th)S.th=st.th;if(st.m)S.m=st.m;if(st.s)S.sp=st.s;if(st.c)clue(st.c);
+S.i++;sv('amab',JSON.stringify(S));view(st);say(st.w,st.t)}
+$('bx').onclick=()=>{if(wait||choosing||!S)return;if(typing){clearInterval(typing);typing=null;$('tx').textContent=full;$('bx').classList.add('rdy');autoGo()}else step()};
+/* ===== BATALHA ===== */
+const AHM=140;let auto=0,ta;
+const SK=[
+{n:'Bolo Pinguelado',d:'dano',c:10,g:'🎂',f:()=>['Manu arremessa um Bolo Pinguelado na cara da Acine! SPLAT!',R(16,24)+S.cl.length]},
+{n:'Pinguelo Ardido',d:'veneno por 4 turnos',c:15,g:'🌶️',f:()=>{B.pz=4;return['O Pinguelo Ardido gruda na Acine! Ela está ENVENENADA e ardendo!',5]}},
+{n:'Usar Rafael como escudo',d:'defesa por 2 turnos',c:12,g:'🛡️',f:()=>{B.rf=2;return['Manu agarra o Rafael e usa como escudo! "POR QUE EU?!" grita Rafael.',0]}}];
+const MV=[
+{n:'DETENÇÃO EXPLOSIVA',g:'💥',d:[12,18],t:'Uma chuva de apagadores cai na Manu!'},
+{n:'SERMÃO INFINITO',g:'💤',d:[8,12],pa:15,t:'Manu perde 15 de energia de tanto bocejar.'},
+{n:'ADVERTÊNCIA VENENOSA',g:'📝',d:[16,22],t:'"Isso vai pro seu boletim!"'},
+{n:'LANCHE PROIBIDO',g:'🍰',h:18,t:'Acine come um bolo escondido e recupera vida!'},
+{n:'REGULAMENTO ESCOLAR',g:'📜',s:1,t:'Escudo de burocracia! O próximo golpe da Manu perde força!'}];
+SK.forEach((k,i)=>{const b=document.createElement('button');b.innerHTML=k.n+'<small>'+k.c+' PA · '+k.d+'</small>';b.onclick=()=>act(i);$('ak').append(b)});
+const msg=t=>$('ms').textContent=t,vib=()=>{try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}};
+function pick(){let m;do{m=MV[R(0,4)]}while(m.h&&(B.hl||B.ah>100));if(B.ah<70&&Math.random()<.3)m=MV[2];return m}
+function hurtA(x){B.ah-=x;if(B.ah<=0&&!B.last){B.ah=1;B.last=1}}
+function turn(w){$('bm').classList.toggle('turn',w=='m');$('ba').classList.toggle('turn',w=='a')}
+function ui(){const w=(i,v,m,c)=>{const e=$(i),q=Math.max(0,v/m);e.style.width=q*100+'%';if(c)e.style.background=q<.3?'#ff5252':q<.6?'#ffb020':'#3ddc84'};
+w('ahb',B.ah,AHM);w('mhb',B.mh,B.MH,1);w('mpb',B.mp,100);
+$('aht').textContent='HP '+Math.max(0,B.ah)+'/'+AHM+(B.pz>0?' · ☠️ Veneno ('+B.pz+')':'')+(B.as?' · 📜 Escudo':'');
+$('mht').textContent='HP '+Math.max(0,B.mh)+'/'+B.MH+' · PA '+B.mp+(B.rf>0?' · 🛡️ Rafael ('+B.rf+')':'');
+$('ak').classList.toggle('lk',!!lk);[...$('ak').children].forEach((b,i)=>b.disabled=B.mp<SK[i].c)}
+function an(id,c){const e=$(id);e.classList.remove(c);void e.offsetWidth;e.classList.add(c);setTimeout(()=>e.classList.remove(c),700)}
+function fl(id,t,g,big){const s=document.createElement('span');s.className='fl'+(g?' g':'')+(big?' big':'');s.textContent=t;$(id).append(s);setTimeout(()=>s.remove(),1000)}
+function burst(id,g,n){for(let i=0;i<n;i++){const s=document.createElement('span');s.className='pt';s.textContent=g;s.style.setProperty('--dx',R(-60,60)+'px');s.style.left=R(20,70)+'%';s.style.animationDelay=i*50+'ms';$(id).append(s);setTimeout(()=>s.remove(),1300)}}
+function btStart(){scr('bt');setM('fundo2');B={mh:Math.max(90,110+S.tr*10),mp:60,ah:AHM,pz:0,rf:0,as:0,hl:0,last:0};B.MH=B.mh;B.nx=pick();
+$('bres').className='hidden';$('fin').className='hidden';lk=0;turn('m');ui();msg('Acine bloqueia a saída com um olhar de DETENÇÃO!');
+$('tn').textContent='Sua vez, Manu!';$('it').textContent='⚠️ Acine vai usar: '+B.nx.n;an('aci','intro')}
+async function act(n){if(lk||!B||!SK[n])return;const k=SK[n];if(B.mp<k.c){msg('Energia insuficiente!');return}
+lk=1;B.mp-=k.c;turn('m');ui();$('tn').textContent='Manu usa '+k.n+'!';$('it').textContent='';
+const[m,d]=k.f();an('mui','atk');burst(d?'ba':'bm',k.g,10);await sl(500);msg(m);if(!d)an('mui','heal');
+if(d){let x=d;const c=Math.random()<.15;if(c)x=Math.round(x*1.5);if(B.as){x=Math.round(x/2);B.as=0}hurtA(x);an('aci','hit');an('bt','shk');fl('ba','-'+x+(c?' CRÍTICO!':''),0,c)}
+ui();await sl(1000);if(B.last)return finale();
+await enemy();if(B.mh<=0)return over(0);
+await tick();if(B.last)return finale();
+B.mp=Math.min(100,B.mp+12);if(B.rf>0)B.rf--;B.nx=pick();lk=0;turn('m');ui();$('tn').textContent='Sua vez, Manu!';$('it').textContent='⚠️ Acine vai usar: '+B.nx.n}
+async function enemy(){turn('a');ui();$('tn').textContent='Vez da Acine...';await sl(800);const m=B.nx;let d=0;
+$('tn').textContent='Acine usa '+m.n+'!';an('aci','atk2');burst(m.d?'bm':'ba',m.g,8);await sl(500);msg(m.t);
+if(m.s)B.as=1;if(m.h){B.hl=1;B.ah=Math.min(AHM,B.ah+m.h);fl('ba','+'+m.h,1)}
+if(m.d){d=R(m.d[0],m.d[1]);if(B.rf>0)d=Math.round(d*.4);if(m.pa)B.mp=Math.max(0,B.mp-m.pa);B.mh-=d;an('mui','hit');an('bt','shk');fl('bm','-'+d);vib()}
+ui();await sl(1200)}
+async function tick(){if(B.pz>0){B.pz--;const x=R(6,9);hurtA(x);an('aci','hit');burst('ba','🌶️',6);fl('ba','-'+x+' ☠️');msg('☠️ O pinguelo ardido queima a Acine por dentro!');ui();await sl(1100)}}
+async function finale(){lk=1;ui();$('it').textContent='';turn('a');$('tn').textContent='Acine está à beira da derrota!';msg('Acine reúne toda a autoridade que lhe resta...');await sl(1300);
+$('tn').textContent='ULTIMATO FINAL!';msg('EXPULSÃO DEFINITIVA! Um golpe FATAL vem na direção da Manu!');an('aci','atk2');burst('bm','⚡',14);await sl(800);
+B.mh=0;an('mui','hit');an('bt','shk');fl('bm','-9999',0,1);vib();ui();await sl(1100);
+const f=$('fin');f.className='red';f.textContent='Você sente que seu pinguelo e seus bolos não irão cair...';await sl(3400);
+f.className='';f.textContent='VOCÊ SE RECUSA A SER DERROTADA!';B.mh=1;ui();an('mui','heal');burst('bm','💖',12);await sl(2400);
+f.className='hidden';turn('m');$('tn').textContent='Contra-ataque final!';msg('Manu une o Pinguelo Ardido e o Bolo Pinguelado num golpe só!');an('mui','atk');burst('ba','🎂',14);await sl(700);
+B.ah=0;an('aci','hit');an('bt','shk');fl('ba','-40',0,1);vib();ui();await sl(1400);over(1)}
+async function over(w){lk=1;const r=$('bres');r.textContent=w?'VITÓRIA! 🎉':'DERROTA... 💀';r.className=w?'win':'lose';burst(w?'ba':'bm',w?'🎉':'💀',14);an(w?'aci':'mui','hit');await sl(2400);
+r.className='hidden';$('fin').className='hidden';S.sc=w?'w1':'l1';S.i=0;S.sp=['manu','acine'];S.th=w?'day':'boss';S.m=w?1:2;lk=0;B=null;$('sp').innerHTML='';scr('vn');step()}
+function autoGo(){clearTimeout(ta);if(auto)ta=setTimeout(()=>{if(auto&&!typing&&!choosing&&!wait&&!$('vn').classList.contains('hidden')&&$('ov').classList.contains('hidden'))step()},1900)}
+$('au').onclick=()=>{auto=!auto;$('au').classList.toggle('on',auto);autoGo()};
+/* ===== FINAIS ===== */
+function finish(id){const E=ENDS[id];let u=[];try{u=JSON.parse(ld('amab_e')||'[]')}catch(e){}if(!u.includes(id))u.push(id);sv('amab_e',JSON.stringify(u));try{localStorage.removeItem('amab')}catch(e){}
+scr('end');$('end').className='scr '+id;$('et').textContent=E.t;$('ed').textContent=E.d;
+$('es').textContent='Pistas: '+S.cl.length+' · Confiança: '+S.tr+' · Coragem: '+S.br+' · Finais descobertos: '+u.length+'/5';
+const f=$('fx');f.innerHTML='';for(let i=0;i<24;i++){const p=document.createElement('span');p.textContent=E.g;p.style.cssText='left:'+R(0,95)+'%;top:'+R(0,90)+'%;animation:'+E.a+';animation-delay:-'+(Math.random()*3).toFixed(2)+'s';f.append(p)}
+setM(E.m)}
+/* ===== MENUS ===== */
+$('bn').onclick=()=>newG();$('bc').onclick=()=>cont();$('bs').onclick=()=>$('ov').classList.remove('hidden');
+$('pz').onclick=()=>$('ov').classList.remove('hidden');$('rs').onclick=()=>$('ov').classList.add('hidden');
+$('mm').onclick=()=>{$('ov').classList.add('hidden');clearInterval(typing);typing=null;lk=0;menu()};
+$('br').onclick=()=>newG();$('m2').onclick=()=>menu();
+$('vr').oninput=e=>{vol=+e.target.value;sv('amab_s',JSON.stringify({v:vol,m:mute}));setM(curM)};
+$('at').onclick=()=>{mute=!mute;sv('amab_s',JSON.stringify({v:vol,m:mute}));$('at').textContent='Áudio: '+(mute?'desligado':'ligado');setM(curM)};
+try{const v=JSON.parse(ld('amab_s')||'null');if(v){vol=+v.v;mute=!!v.m;$('vr').value=vol;$('at').textContent='Áudio: '+(mute?'desligado':'ligado')}}catch(e){}
+document.addEventListener('keydown',e=>{if(!$('ov').classList.contains('hidden'))return;if(!$('bt').classList.contains('hidden')){if('1234'.includes(e.key))act(+e.key-1);return}if(!$('vn').classList.contains('hidden')&&(e.key==' '||e.key=='Enter')){e.preventDefault();$('bx').onclick()}});
+menu();
+</script></body></html>
